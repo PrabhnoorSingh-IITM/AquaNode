@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AquaNode | Real-Time Water Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <!-- Anime.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+</head>
+<body class="bg-slate-950 text-slate-50">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 glass py-4 px-8 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-sky-500 rounded-lg flex items-center justify-center font-bold">A</div>
+            <span class="text-xl font-bold tracking-tight">AquaNode</span>
+        </div>
+        <div class="flex gap-8 items-center font-medium">
+            <a href="#hero" class="hover:text-sky-400 transition">Overview</a>
+            <a href="#architecture" class="hover:text-sky-400 transition">Architecture</a>
+            <a href="#hardware" class="hover:text-sky-400 transition">Hardware</a>
+            <a href="/dashboard" class="bg-sky-500 hover:bg-sky-600 px-6 py-2 rounded-full transition shadow-lg shadow-sky-500/20">Launch Dashboard</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero" class="relative min-h-screen flex items-center justify-center px-8 overflow-hidden pt-20">
+        <div class="absolute inset-0 z-0">
+            <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-sky-500/20 rounded-full blur-[120px] animate-pulse"></div>
+            <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-[120px]"></div>
+        </div>
+        
+        <div class="relative z-10 text-center max-w-4xl mx-auto">
+            <h1 class="hero-title text-6xl md:text-8xl font-extrabold mb-6 leading-tight opacity-0">
+                Water Intelligence <br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-indigo-400 font-heading">Reimagined.</span>
+            </h1>
+            <p class="hero-subtitle text-xl text-slate-400 mb-10 opacity-0 max-w-2xl mx-auto">
+                Real-time water quality monitoring and automated valve management powered by ESP32 and Firebase. Secure, scalable, and instant.
+            </p>
+            <div class="hero-cta opacity-0 flex gap-4 justify-center">
+                <a href="#architecture" class="px-8 py-4 border border-slate-700 hover:border-sky-500 rounded-xl transition-all hover:bg-sky-500/5">Explore Architecture</a>
+                <a href="/dashboard" class="px-8 py-4 bg-sky-500 hover:bg-sky-600 rounded-xl font-semibold transition-all">Go to Dashboard</a>
+            </div>
+        </div>
+
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-slate-500">
+            <span class="text-xs uppercase tracking-widest">Scroll to dive</span>
+            <div class="w-1 h-12 bg-gradient-to-b from-sky-500 to-transparent rounded-full"></div>
+        </div>
+    </section>
+
+    <!-- Architecture Section -->
+    <section id="architecture" class="py-32 px-8 bg-slate-900/50">
+        <div class="max-w-6xl mx-auto">
+            <div class="mb-20 text-center">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">System Architecture</h2>
+                <p class="text-slate-400">Visualizing the flow from source to main pipe through our intelligent sensor array.</p>
+            </div>
+
+            <div id="architecture-grid" class="grid lg:grid-cols-2 gap-16 items-center transition-all duration-700">
+                <div class="architecture-visual group p-8 glass rounded-3xl relative overflow-hidden">
+                    <!-- Simulation Overlay -->
+                    <div id="sim-hud" class="absolute top-4 left-4 z-20 flex flex-col gap-2 pointer-events-none opacity-0 transition-opacity duration-500">
+                        <div class="bg-slate-900/90 border border-slate-700 px-3 py-2 rounded-lg flex items-center gap-3">
+                            <div id="sim-status-dot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                            <span id="sim-status-text" class="text-xs font-mono uppercase tracking-widest text-emerald-400">System Nominal</span>
+                        </div>
+                        <div class="bg-slate-900/90 border border-slate-700 px-3 py-2 rounded-lg">
+                            <div class="text-[10px] text-slate-500 uppercase mb-1">Filter 1 Load</div>
+                            <div class="w-32 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                <div id="sim-clog-bar" class="h-full bg-sky-500 transition-all duration-1000" style="width: 0%"></div>
+                            </div>
+                            <div id="sim-clog-text" class="text-[10px] text-slate-400 mt-1">0% Clogged</div>
+                        </div>
+                        <div class="bg-slate-900/90 border border-slate-700 px-3 py-2 rounded-lg">
+                            <div class="text-[10px] text-slate-500 uppercase mb-1">Main Line pH</div>
+                            <div id="sim-ph-text" class="text-sm font-bold text-indigo-400">7.0 pH</div>
+                        </div>
+                    </div>
+
+                    <div id="sim-start-btn" class="absolute inset-0 z-30 flex items-center justify-center bg-slate-950/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                        <div class="bg-sky-500 hover:bg-sky-600 px-6 py-3 rounded-full font-bold shadow-xl shadow-sky-500/20 transform hover:scale-105 transition-all">
+                            Run System Simulation
+                        </div>
+                    </div>
+
+                    <!-- SVG Pipe Diagram -->
+                    <svg viewBox="0 0 700 350" class="w-full h-auto">
+                        <!-- BG Pipes -->
+                        <path d="M 20 80 L 250 80 L 250 175" fill="none" stroke="#1e293b" stroke-width="14" stroke-linecap="round" />
+                        <path d="M 20 270 L 250 270 L 250 175" fill="none" stroke="#1e293b" stroke-width="14" stroke-linecap="round" />
+                        <path d="M 250 175 L 680 175" fill="none" stroke="#1e293b" stroke-width="14" stroke-linecap="round" />
+                        <path d="M 500 20 L 500 175" fill="none" stroke="#1e293b" stroke-width="14" stroke-linecap="round" />
+
+                        <!-- Water Flow Paths -->
+                        <path id="water-inlet-1" d="M 20 80 L 250 80 L 250 175" fill="none" stroke="#0ea5e9" stroke-width="8" stroke-linecap="round" stroke-dasharray="1000" stroke-dashoffset="1000" class="water-pipe" />
+                        <path id="water-inlet-2" d="M 20 270 L 250 270 L 250 175" fill="none" stroke="#0ea5e9" stroke-width="8" stroke-linecap="round" stroke-dasharray="1000" stroke-dashoffset="1000" class="water-pipe" />
+                        <path id="water-main" d="M 250 175 L 680 175" fill="none" stroke="#0ea5e9" stroke-width="8" stroke-linecap="round" stroke-dasharray="1000" stroke-dashoffset="1000" class="water-pipe" />
+                        <path id="water-container" d="M 500 20 L 500 175" fill="none" stroke="#38bdf8" stroke-width="8" stroke-linecap="round" stroke-dasharray="1000" stroke-dashoffset="1000" class="water-pipe opacity-50" />
+
+                        <!-- Components -->
+                        <rect id="rect-flow-1" x="60" y="70" width="40" height="20" rx="4" fill="#334155" /> <text x="62" y="65" fill="#64748b" font-size="8">FLOW</text>
+                        <rect id="rect-valve-1" x="130" y="65" width="30" height="30" rx="4" fill="#1e293b" stroke="#334155" /> <text x="132" y="60" fill="#0ea5e9" font-size="8">VALVE 1</text>
+                        <rect id="rect-filter-1" x="190" y="70" width="40" height="20" rx="4" fill="#334155" /> <text x="192" y="65" fill="#64748b" font-size="8">FILTER</text>
+
+                        <rect id="rect-flow-2" x="60" y="260" width="40" height="20" rx="4" fill="#334155" /> <text x="62" y="255" fill="#64748b" font-size="8">FLOW</text>
+                        <rect id="rect-valve-2" x="130" y="255" width="30" height="30" rx="4" fill="#1e293b" stroke="#334155" /> <text x="132" y="250" fill="#0ea5e9" font-size="8">VALVE 2</text>
+                        <rect id="rect-filter-2" x="190" y="260" width="40" height="20" rx="4" fill="#334155" /> <text x="192" y="255" fill="#64748b" font-size="8">FILTER</text>
+
+                        <rect id="rect-ph" x="360" y="165" width="30" height="20" rx="4" fill="#334155" /> <text x="362" y="160" fill="#818cf8" font-size="8">pH</text>
+                        <rect id="rect-turb" x="580" y="165" width="60" height="20" rx="4" fill="#334155" /> <text x="582" y="160" fill="#fbbf24" font-size="8">TURBIDITY</text>
+
+                        <rect id="rect-cont" x="460" y="20" width="80" height="40" rx="4" fill="#1e293b" stroke="#334155" />
+                        <text x="475" y="45" fill="#94a3b8" font-size="10">BASE/ACID</text>
+                    </svg>
+                </div>
+
+                <div class="step-card-container space-y-8 transition-all duration-500">
+                    <div class="step-card opacity-0">
+                        <div class="flex gap-4 items-start">
+                            <div class="w-10 h-10 rounded-xl bg-sky-500/10 flex items-center justify-center text-sky-400 shrink-0 font-bold">01</div>
+                            <div>
+                                <h3 class="text-xl font-bold mb-2 text-white">Smart Clogging Detection</h3>
+                                <p class="text-slate-400 text-sm leading-relaxed">System monitors differential flow rates across filters. If >70% clogging is detected, it triggers an automated failover to the redundant branch.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="step-card opacity-0">
+                        <div class="flex gap-4 items-start">
+                            <div class="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 shrink-0 font-bold">02</div>
+                            <div>
+                                <h3 class="text-xl font-bold mb-2 text-white">Autonomous pH Balancing</h3>
+                                <p class="text-slate-400 text-sm leading-relaxed">Integrated dosing logic injects base or acid from secondary containers to neutralize main line water to a perfect 7.0 pH.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="step-card opacity-0">
+                        <div class="flex gap-4 items-start">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 shrink-0 font-bold">03</div>
+                            <div>
+                                <h3 class="text-xl font-bold mb-2 text-white">Operational Continuity</h3>
+                                <p class="text-slate-400 text-sm leading-relaxed">Redundant solenoid valves ensure zero-downtime during filter maintenance, keeping critical systems online 24/7.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hardware Specs Section -->
+    <section id="hardware" class="py-32 px-8">
+        <div class="max-w-6xl mx-auto">
+            <div class="mb-20 text-center">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">Hardware Stack</h2>
+                <p class="text-slate-400">Industrial-grade components for precision and reliability.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- ESP32 -->
+                <div class="hardware-card glass-card p-8 rounded-3xl md:col-span-2">
+                    <div class="flex flex-col h-full">
+                        <div class="text-sky-400 mb-6 text-sm font-bold tracking-widest uppercase">Controller</div>
+                        <h3 class="text-3xl font-bold mb-4">ESP32 Dual-Core</h3>
+                        <p class="text-slate-400 mb-8 max-w-md">The brain of the system. Handles dual-source sensor reading and secure WiFi telemetry to Firebase.</p>
+                        <div class="mt-auto flex gap-4">
+                            <span class="px-3 py-1 bg-slate-800 rounded-lg text-xs">WiFi / BT</span>
+                            <span class="px-3 py-1 bg-slate-800 rounded-lg text-xs">240MHz</span>
+                            <span class="px-3 py-1 bg-slate-800 rounded-lg text-xs">RTOS</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Sensors -->
+                <div class="hardware-card glass-card p-8 rounded-3xl">
+                    <div class="text-indigo-400 mb-6 text-sm font-bold tracking-widest uppercase">Sensing</div>
+                    <h3 class="text-2xl font-bold mb-4">Sensor Suite</h3>
+                    <ul class="space-y-3 text-slate-400">
+                        <li class="flex items-center gap-2">
+                            <div class="w-1.5 h-1.5 bg-sky-500 rounded-full"></div>
+                            pH Analysis
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <div class="w-1.5 h-1.5 bg-sky-500 rounded-full"></div>
+                            Turbidity (TSW-20M)
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <div class="w-1.5 h-1.5 bg-sky-500 rounded-full"></div>
+                            Dual YF-S201 Flow
+                        </li>
+                    </ul>
+                </div>
+                <!-- Actuators -->
+                <div class="hardware-card glass-card p-8 rounded-3xl">
+                    <div class="text-emerald-400 mb-6 text-sm font-bold tracking-widest uppercase">Action</div>
+                    <h3 class="text-2xl font-bold mb-4">Actuators</h3>
+                    <p class="text-slate-400 mb-6">12V Solenoid valves with manual override capabilities.</p>
+                    <div class="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    </div>
+                </div>
+                <!-- Notifications -->
+                <div class="hardware-card glass-card p-8 rounded-3xl md:col-span-2">
+                    <div class="text-amber-400 mb-6 text-sm font-bold tracking-widest uppercase">Feedback</div>
+                    <h3 class="text-3xl font-bold mb-4">Visual & Audio Indicators</h3>
+                    <p class="text-slate-400 mb-8">Integrated RGB LED status and piezoelectric buzzer for critical alarms.</p>
+                    <div class="flex gap-4">
+                        <div class="w-12 h-12 rounded-full bg-emerald-500 glow-blue"></div>
+                        <div class="w-12 h-12 rounded-full bg-amber-500"></div>
+                        <div class="w-12 h-12 rounded-full bg-rose-500"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-slate-900 text-center text-slate-500 text-sm">
+        <p>&copy; 2026 AquaNode Project. Designed for advanced water management.</p>
+    </footer>
+
+    <script src="js/landing.js"></script>
+</body>
+</html>
